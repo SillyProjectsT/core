@@ -24,3 +24,48 @@ public endpoint:
 ```
 https://sillycore.koyeb.app/
 ```
+
+
+# luau code example 
+
+```luau
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local ok, info = pcall(function()
+	return MarketplaceService:GetProductInfo(game.PlaceId)
+end)
+
+if ok then
+	print(info.Name .. " is using Verb's AI Moderation by Chip!")
+end
+
+local function checkPlayer(player)
+	local url = "https://sillycore.koyeb.app/submit?userid=" .. player.UserId .. "&cache=true"
+
+	local success, res = pcall(function()
+		return HttpService:GetAsync(url)
+	end)
+
+	if not success then
+		return warn("http failed:", res)
+	end
+
+	local data = HttpService:JSONDecode(res)
+	local score = data.avatar.rating + data.bio.bioAI.rating + data.groupRating
+
+	if score > 3.5 then
+			player:Kick(string.format("You have been kicked for being detected with AI moderation, you got a moderation point of %d. ggs", overall_rating))
+	else
+		print("good boy")
+	end
+end
+
+Players.PlayerAdded:Connect(checkPlayer)
+
+for _, plr in ipairs(Players:GetPlayers()) do
+	checkPlayer(plr)
+end
+
+``
