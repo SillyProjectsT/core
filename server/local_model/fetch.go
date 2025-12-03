@@ -22,22 +22,35 @@ func Fetch(text string) string {
 
 	main.Println("fetching to local model....")
 	encoded := url.QueryEscape(text)
-	response, err := http.Get(fmt.Sprintf("http://127.0.0.1:5000/?text=%s", encoded))
+	urlStr := fmt.Sprintf("%s/text?text=%s", os.Getenv("LOCAL_MODEL_URL"), encoded)
+	response, err := http.Get(urlStr)
 
 	if err != nil {
-		main.Fatal(err)
+		main.Printf("http get error: %v", err)
+		return "-1"
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		main.Printf("read body error: %v", err)
+		return "-1"
+	}
 
 	main.Println("extracting the body mate")
+
+	if response.StatusCode != http.StatusOK {
+		main.Printf("unexpected status %s from local model, body: %s", response.Status, string(body))
+		return "-1"
+	}
 
 	var PDIDDY LocalModel // i ran out of name to name this var soooooooooooo
 	err = json.Unmarshal(body, &PDIDDY)
 
 	if err != nil {
-		main.Fatal(err)
+		main.Printf("json unmarshal error: %v", err)
+		main.Printf("body was: %s", string(body))
+		return "-1"
 	}
 
 	main.Println("done job")

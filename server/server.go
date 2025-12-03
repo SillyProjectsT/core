@@ -28,7 +28,7 @@ func Start() {
 
 	http.HandleFunc("/MLchecking", func(w http.ResponseWriter, r *http.Request) {
 		main.Println("new request for /MLchecking!")
-		if os.Getenv("ENABLE_LOCAL_MODEL") == "true" {
+		if os.Getenv("DISABLE_LOCAL_MODEL") == "false" {
 			ctx := context.Background()
 
 			value := r.URL.Query().Get("id")
